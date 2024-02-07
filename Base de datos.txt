@@ -1,0 +1,119 @@
+en caso de no poder guardar caracteres especiales
+		ALTER DATABASE punto_de_venta CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+		SET NAMES utf8mb4;
+
+ALTER TABLE punto_de_venta CONVERT TO CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+
+
+
+
+
+
+mysql -u root -p --default-character-set=utf8
+
+
+CREATE DATABASE IF NOT EXISTS `punto_de_venta` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+
+USE punto_de_venta;
+
+CREATE TABLE IF NOT EXISTS Productos (
+    CodigoBarras INT PRIMARY KEY,
+    Nombre VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_unicode_ci,
+    Precio DECIMAL(10,2),
+    Descripcion TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci,
+    Stock INT
+)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPACT;
+
+CREATE TABLE IF NOT EXISTS Vendedores (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    Nombres VARCHAR(50) CHARACTER SET utf8 COLLATE utf8_spanish_ci NOT NULL,
+    ApellidoPaterno VARCHAR(50) CHARACTER SET utf8 COLLATE utf8_unicode_ci,
+    ApellidoMaterno VARCHAR(50) CHARACTER SET utf8 COLLATE utf8_unicode_ci,
+    Correo VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_unicode_ci UNIQUE,
+    Telefono VARCHAR(15) UNIQUE,
+    Contrasena VARCHAR(50) CHARACTER SET utf8 COLLATE utf8_unicode_ci,
+    TipoUsuario VARCHAR(50) CHARACTER SET utf8 COLLATE utf8_unicode_ci
+)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;	
+
+CREATE TABLE IF NOT EXISTS Ventas (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    IDVendedor INT,
+    Fecha DATE,
+    Hora TIME,
+    Total DECIMAL(10,2),
+    FOREIGN KEY (IDVendedor) REFERENCES Vendedores(ID)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPACT;
+
+CREATE TABLE IF NOT EXISTS DetalleVentas (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    IDVenta INT,
+    CodigoBarras INT,
+    Cantidad INT,
+    Subtotal DECIMAL(10,2),
+    FOREIGN KEY (IDVenta) REFERENCES Ventas(ID),
+    FOREIGN KEY (CodigoBarras) REFERENCES Productos(CodigoBarras)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPACT;
+
+
+INSERT INTO Productos (CodigoBarras, Nombre, Precio, Descripcion, Stock)
+VALUES
+(1, 'Producto A', 12.99, 'Descripción del Producto A', 50),
+(2, 'Producto B', 24.50, 'Descripción del Producto B', 30),
+(3, 'Producto C', 8.75, 'Descripción del Producto C', 20),
+(4, 'Producto D', 15.25, 'Descripción del Producto D', 40),
+(5, 'Producto E', 10.99, 'Descripción del Producto E', 15),
+(6, 'Producto F', 18.50, 'Descripción del Producto F', 25),
+(7, 'Producto G', 14.75, 'Descripción del Producto G', 35),
+(8, 'Producto H', 30.00, 'Descripción del Producto H', 10),
+(9, 'Producto I', 9.25, 'Descripción del Producto I', 28),
+(10, 'Producto J', 22.99, 'Descripción del Producto J', 12);
+
+INSERT INTO Vendedores (Nombres, ApellidoPaterno, ApellidoMaterno, Correo, Telefono, Contrasena, TipoUsuario)
+VALUES
+('Juan', 'Pérez', 'Gómez', 'juan.perez@example.com', '1234567890', 'contrasena1', 'ADMINISTRADOR'),
+('María', 'González', 'López', 'maria.gonzalez@example.com', '9876543210', 'contrasena2', 'VENDEDOR'),
+('Carlos', 'Martínez', 'Rodríguez', 'carlos.martinez@example.com', '5555555555', 'contrasena3', 'ADMINISTRADOR'),
+('Ana', 'López', 'Hernández', 'ana.lopez@example.com', '3333333333', 'contrasena4', 'ADMINISTRADOR'),
+('Roberto', 'Ramírez', 'Díaz', 'roberto.ramirez@example.com', '6666666666', 'contrasena5', 'ADMINISTRADOR'),
+('Sofía', 'Sánchez', 'Vega', 'sofia.sanchez@example.com', '4444444444', 'contrasena6', 'VENDEDOR'),
+('Javier', 'Vega', 'Ruíz', 'javier.vega@example.com', '7777777777', 'contrasena7', 'VENDEDOR'),
+('Elena', 'Herrera', 'Jiménez', 'elena.herrera@example.com', '8888888888', 'contrasena8', 'VENDEDOR'),
+('Miguel', 'Cruz', 'Mendoza', 'miguel.cruz@example.com', '9999999999', 'contrasena9', 'VENDEDOR'),
+('Laura', 'Torres', 'Ortiz', 'laura.torres@example.com', '1212121212', 'contrasena10', 'ADMINISTRADOR');
+
+
+INSERT INTO Ventas (IDVendedor, Fecha, Hora, Total)
+VALUES
+(1, '2024-01-21', '12:30:00', 120.50),
+(2, '2024-01-22', '14:45:00', 75.25),
+(3, '2024-01-23', '18:20:00', 50.99),
+(4, '2024-01-24', '10:15:00', 95.75),
+(5, '2024-01-25', '16:30:00', 62.00),
+(6, '2024-01-26', '20:00:00', 110.25),
+(7, '2024-01-27', '13:45:00', 80.50),
+(8, '2024-01-28', '09:00:00', 45.75),
+(9, '2024-01-29', '15:20:00', 88.99),
+(10, '2024-01-30', '11:10:00', 120.00);
+
+
+
+INSERT INTO DetalleVentas (IDVenta, CodigoBarras, Cantidad, Subtotal)
+VALUES
+(1, 1, 2, 25.98),
+(2, 2, 3, 73.50),
+(3, 3, 1, 8.75),
+(4, 4, 4, 76.00),
+(5, 5, 2, 20.98),
+(6, 6, 3, 55.50),
+(7, 7, 1, 14.75),
+(8, 8, 2, 30.00),
+(9, 9, 3, 27.75),
+(10, 10, 1, 22.99);
+
+
+
+
+
+
+
+
