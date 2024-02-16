@@ -18,9 +18,15 @@ import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import constructor.constructor.ResultadoVentaDia;
 import constructor.constructor.ResultadoVentaMes;
+import constructor.constructor.ResultadoVentaRango;
 import java.awt.Component;
+import java.sql.Date;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Map;
 import javax.swing.JTable;
@@ -28,6 +34,10 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.BorderFactory;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerDateModel;
 
 /**
  *
@@ -172,6 +182,7 @@ public class ventasPanel extends javax.swing.JPanel {
         labelAnio = new javax.swing.JLabel();
         labelMes = new javax.swing.JLabel();
         labelDia = new javax.swing.JLabel();
+        btnRango = new javax.swing.JButton();
 
         setPreferredSize(new java.awt.Dimension(750, 460));
 
@@ -222,7 +233,6 @@ public class ventasPanel extends javax.swing.JPanel {
         tablaVentas.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         tablaVentas.setFillsViewportHeight(true);
         tablaVentas.setOpaque(false);
-        tablaVentas.setRowSelectionAllowed(true);
         tablaVentas.setSelectionBackground(new java.awt.Color(102, 255, 102));
         tablaVentas.setSelectionForeground(new java.awt.Color(255, 255, 255));
         tablaVentas.setShowHorizontalLines(false);
@@ -264,6 +274,16 @@ public class ventasPanel extends javax.swing.JPanel {
         labelDia.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         labelDia.setText("DIA");
 
+        btnRango.setBackground(new java.awt.Color(0, 102, 255));
+        btnRango.setFont(new java.awt.Font("Dialog", 1, 22)); // NOI18N
+        btnRango.setForeground(new java.awt.Color(255, 255, 255));
+        btnRango.setText("RANGO");
+        btnRango.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRangoActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout bgLayout = new javax.swing.GroupLayout(bg);
         bg.setLayout(bgLayout);
         bgLayout.setHorizontalGroup(
@@ -284,7 +304,9 @@ public class ventasPanel extends javax.swing.JPanel {
                             .addComponent(txtAnio)
                             .addComponent(labelAnio, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addGap(36, 36, 36)
-                        .addComponent(btnMes, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(bgLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(btnMes, javax.swing.GroupLayout.DEFAULT_SIZE, 132, Short.MAX_VALUE)
+                            .addComponent(btnRango, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(bgLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(btnAnio, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -304,7 +326,9 @@ public class ventasPanel extends javax.swing.JPanel {
             .addGroup(bgLayout.createSequentialGroup()
                 .addGroup(bgLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(bgLayout.createSequentialGroup()
-                        .addComponent(btnDia, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(bgLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(btnDia, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnRango, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(bgLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(btnMes, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -413,8 +437,16 @@ if (txtdia.length() != 0 || txtmes.length() != 2 || txtanio.length() != 4) {
         anio = Integer.parseInt(txtanio);
 
         // Llamar al método de búsqueda por mes
-        List<ResultadoVentaMes> resultados = busquedaMes.buscarPorMesYAnio(mes, anio);
-
+        Map<String, Object> resultadoMap = busquedaMes.buscarPorMesYAnio(mes, anio);
+        //List<ResultadoVentaMes> resultados = busquedaMes.buscarPorMesYAnio(mes, anio);
+        List<ResultadoVentaMes> resultados = (List<ResultadoVentaMes>) resultadoMap.get("resultados");
+        float totalMes = (float) resultadoMap.get("totalMes");
+                // Obtener el modelo de la tabla
+                 DecimalFormat df = new DecimalFormat("#,###.##");
+                 String totalMesFormateado = df.format(totalMes);
+        
+        
+        
         // Obtener el modelo de la tabla
         DefaultTableModel model = (DefaultTableModel) tablaVentas.getModel();
 
@@ -432,7 +464,10 @@ if (txtdia.length() != 0 || txtmes.length() != 2 || txtanio.length() != 4) {
             };
             model.addRow(fila);
         }
-        //model.fireTableDataChanged();
+        // Mostrar el total del día
+            jLabelTotalDia.setText(String.valueOf(""));
+            jLabelTotalMes.setText("TOTAL MES: "+totalMesFormateado+"$");
+            jLabelTotalAnio.setText("");
     } catch (NumberFormatException e) {
         JOptionPane.showMessageDialog(null, "Para buscar por MES tienes que ingresarlo en este formato: \n EJEMPLO: 01-2024 DEJANDO EN BLANCO EL DIA");
     }
@@ -454,7 +489,13 @@ if (txtdia.length() != 0 || txtmes.length() != 2 || txtanio.length() != 4) {
             anio = Integer.parseInt(txtanio);
 
             // Llamar al método de búsqueda por año
-            List<ResultadoVentaAnio> resultados = busquedaAnio.buscarPorAnio(anio);
+            Map<String, Object> resultadoMap = busquedaAnio.buscarPorAnio(anio);
+            //List<ResultadoVentaAnio> resultados = busquedaAnio.buscarPorAnio(anio);
+            List<ResultadoVentaAnio> resultados = (List<ResultadoVentaAnio>) resultadoMap.get("resultados");
+        float totalAnio = (float) resultadoMap.get("totalAnio");
+                // Obtener el modelo de la tabla
+                 DecimalFormat df = new DecimalFormat("#,###.##");
+                 String totalAnioFormateado = df.format(totalAnio);
 
             // Obtener el modelo de la tabla
             DefaultTableModel model = (DefaultTableModel) tablaVentas.getModel();
@@ -473,11 +514,86 @@ if (txtdia.length() != 0 || txtmes.length() != 2 || txtanio.length() != 4) {
                 };
                 model.addRow(fila);
             }
+            jLabelTotalDia.setText(String.valueOf(""));
+            jLabelTotalMes.setText("");
+            jLabelTotalAnio.setText("TOTAL AÑO: "+totalAnioFormateado+"$");
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(null, "Para buscar por AÑO tienes que ingresarlo en este formato: \n EJEMPLO: 2024 DEJANDO EN BLANCO EL DIA Y MES");
         }
     }
     }//GEN-LAST:event_btnAnioActionPerformed
+
+    private void btnRangoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRangoActionPerformed
+     // Crear una instancia del constructor
+constructor busquedaRango = new constructor();
+
+// Crear un nuevo icono desde una imagen en tu paquete de iconos
+Icon iconoPersonalizado = new ImageIcon(getClass().getResource("/iconos/rangoFecha.png"));
+
+// Crear dos JSpinner con un modelo de fecha
+SpinnerDateModel model1 = new SpinnerDateModel();
+model1.setCalendarField(Calendar.DAY_OF_MONTH);
+JSpinner spinner1 = new JSpinner(model1);
+
+SpinnerDateModel model2 = new SpinnerDateModel();
+model2.setCalendarField(Calendar.DAY_OF_MONTH);
+JSpinner spinner2 = new JSpinner(model2);
+
+// Configurar el formato de la fecha
+JSpinner.DateEditor editor1 = new JSpinner.DateEditor(spinner1, "dd/MM/yyyy");
+spinner1.setEditor(editor1);
+
+JSpinner.DateEditor editor2 = new JSpinner.DateEditor(spinner2, "dd/MM/yyyy");
+spinner2.setEditor(editor2);
+
+// Mostrar el JOptionPane con los JSpinner
+Object[] message = {
+    "Introduce la primera fecha:", spinner1,
+    "Introduce la segunda fecha:", spinner2
+};
+
+int option = JOptionPane.showOptionDialog(null, message, "Introduce dos fechas",
+        JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, iconoPersonalizado, null, null);
+
+// Si el usuario presiona "OK", obtener las fechas y realizar la búsqueda
+if (option == JOptionPane.OK_OPTION) {
+    java.util.Date fechaInicio = (java.util.Date) spinner1.getValue();
+    java.util.Date fechaFin = (java.util.Date) spinner2.getValue();
+
+    java.sql.Date sqlFechaInicio = new java.sql.Date(fechaInicio.getTime());
+    java.sql.Date sqlFechaFin = new java.sql.Date(fechaFin.getTime());
+
+    // Llamar al método de búsqueda por rango de fechas
+    Map<String, Object> resultadoMap = busquedaRango.buscarPorRangoFechas(sqlFechaInicio, sqlFechaFin);
+    List<ResultadoVentaRango> resultados = (List<ResultadoVentaRango>) resultadoMap.get("resultados");
+    double totalPeriodo = (double) resultadoMap.get("totalPeriodo");
+
+    // Obtener el modelo de la tabla
+    DefaultTableModel model = (DefaultTableModel) tablaVentas.getModel();
+
+    // Limpiar el modelo actual
+    model.setRowCount(0);
+
+    // Agregar filas con los resultados a la tabla
+    for (ResultadoVentaRango resultado : resultados) {
+        Object[] fila = {
+            resultado.getIdVenta(),
+            resultado.getFechaVenta(),
+            resultado.getNombreVendedor(),
+            resultado.getSubtotalVenta(),
+            resultado.getTotalVenta()
+        };
+        model.addRow(fila);
+    }
+
+    // Actualizar cualquier otra parte de la interfaz de usuario necesaria
+    DecimalFormat formato = new DecimalFormat("#,###.##");
+    String totalPeriodoFormateado = formato.format(totalPeriodo);
+    jLabelTotalDia.setText("");
+    jLabelTotalMes.setText("");
+    jLabelTotalAnio.setText("Total de Ventas del Rango de Fechas: " + totalPeriodoFormateado);
+}
+    }//GEN-LAST:event_btnRangoActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -485,6 +601,7 @@ if (txtdia.length() != 0 || txtmes.length() != 2 || txtanio.length() != 4) {
     private javax.swing.JButton btnAnio;
     private javax.swing.JButton btnDia;
     private javax.swing.JButton btnMes;
+    private javax.swing.JButton btnRango;
     private javax.swing.JLabel jLabelTotalAnio;
     private javax.swing.JLabel jLabelTotalDia;
     private javax.swing.JLabel jLabelTotalMes;

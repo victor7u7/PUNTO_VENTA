@@ -14,6 +14,8 @@ import java.sql.ResultSet;
 
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -114,7 +116,6 @@ public class constructor {
                 try (PreparedStatement preparedStatement = connection.prepareStatement(consultaSQL)) {
                     preparedStatement.setDate(1, java.sql.Date.valueOf(fechaBusqueda));
 
-//                    double totalDia = 0;
 
                     try (ResultSet resultSet = preparedStatement.executeQuery()) {
                         if (!resultSet.next()) {
@@ -160,6 +161,8 @@ public class constructor {
                 resultadoMap.put("totalDia", totalDia);
             return resultadoMap;
         }
+
+   
 
 
     public class ResultadoVentaDia {
@@ -221,10 +224,10 @@ public class constructor {
         
   
     
-        
-    public List<ResultadoVentaMes>buscarPorMesYAnio(int mes, int anio) {
+       
+    public Map<String, Object> buscarPorMesYAnio(int mes, int anio) {
         List<ResultadoVentaMes> resultados = new ArrayList<>();
-        
+        float totalMes=0;
     try (Connection connection = conDB.conectar()) {
             // Proporciona el mes y año
 //            int mesBusqueda = 1;
@@ -240,7 +243,6 @@ public class constructor {
                 preparedStatement.setInt(1, mes);
                 preparedStatement.setInt(2, anio);
 
-                double totalMes = 0; // Variable para acumular el total de ventas del mes
 
                 try (ResultSet resultSet = preparedStatement.executeQuery()) {
                     // Procesar los resultados
@@ -287,8 +289,12 @@ public class constructor {
         } catch (SQLException e) {
             e.printStackTrace();
             // Manejar el error según tus necesidades
-        }         
-        return resultados;
+        }
+     Map<String, Object> resultadoMap = new HashMap<>();
+                resultadoMap.put("resultados", resultados);
+                resultadoMap.put("totalMes", totalMes);
+            return resultadoMap;
+
     }
        
    public class ResultadoVentaMes {
@@ -346,9 +352,10 @@ public class constructor {
 
         
   
-   
-    public List<ResultadoVentaAnio> buscarPorAnio(int anio) {
+
+    public Map<String, Object> buscarPorAnio(int anio) {
          List<ResultadoVentaAnio> resultados = new ArrayList<>();
+         float totalAnio=0;
     try (Connection connection = conDB.conectar()) {
         String consultaSQL = "SELECT v.ID, v.IDVendedor, v.Fecha, v.Total, ve.Nombres, dv.Subtotal " +
                 "FROM Ventas v " +
@@ -358,7 +365,7 @@ public class constructor {
         try (PreparedStatement preparedStatement = connection.prepareStatement(consultaSQL)) {
             preparedStatement.setInt(1, anio);
 
-            double totalAnio = 0;
+            //double totalAnio = 0;
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if(!resultSet.isBeforeFirst()){
@@ -395,7 +402,10 @@ public class constructor {
     } catch (SQLException e) {
         e.printStackTrace();
     }
-    return resultados;
+    Map<String, Object> resultadoMap = new HashMap<>();
+                resultadoMap.put("resultados", resultados);
+                resultadoMap.put("totalAnio", totalAnio);
+            return resultadoMap;
     }
     
     public class ResultadoVentaAnio {
@@ -436,4 +446,111 @@ public class constructor {
         return subtotalVenta;
     }
   }
+    
+    
+    
+    
+    //      ************               ****            ****        *****       *************          **********
+    //      ************              ******           *****       *****       *************        *************
+    //      ****     ***             ********          ******      *****       ****                ****        ****
+    //      ****     ***            ****  ****         *******     *****       ****              ****           ****
+    //      *************          ****    ****        **** ***    *****       ****   *********  ****           ****
+    //      **************        **************       ****  ***   *****       ****   *********  ****           ****
+    //      *****      ****      ****************      ****   ***  *****       ****        ****   ****          ****
+    //      *****       ****    ****          ****     ****    *********       ****************     ************** 
+    //      *****       ****   ****            ****    ****     ********       ****************      ***********
+    
+     
+    
+    public Map<String, Object> buscarPorRangoFechas(Date fechaInicio, Date fechaFin) {
+        List<ResultadoVentaRango> resultados = new ArrayList<>();
+    double totalPeriodo = 0;
+
+    try (Connection connection = conDB.conectar()) {
+        String consultaSQL = "SELECT v.ID, v.IDVendedor, v.Fecha, v.Total, ve.Nombres, dv.Subtotal " +
+                            "FROM Ventas v " +
+                            "INNER JOIN Vendedores ve ON v.IDVendedor = ve.ID " +
+                            "INNER JOIN DetalleVentas dv ON v.ID = dv.IDVenta " +
+                            "WHERE v.Fecha BETWEEN ? AND ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(consultaSQL)) {
+            // Configurar las fechas en el PreparedStatement
+            preparedStatement.setDate(1, new java.sql.Date(fechaInicio.getTime()));
+            preparedStatement.setDate(2, new java.sql.Date(fechaFin.getTime()));
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    int idVenta = resultSet.getInt("ID");
+                    int idVendedor = resultSet.getInt("IDVendedor");
+                    Date fechaVenta = resultSet.getDate("Fecha");
+                    String nombreVendedor = resultSet.getString("Nombres");
+                    double totalVenta = resultSet.getDouble("Total");
+                    double subtotalVenta = resultSet.getDouble("Subtotal");
+
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+                    String fechaFormateada = dateFormat.format(fechaVenta);
+
+                    totalPeriodo += totalVenta;
+
+                    ResultadoVentaRango resultado = new ResultadoVentaRango(idVenta, idVendedor, fechaFormateada, nombreVendedor, totalVenta, subtotalVenta);
+                    resultados.add(resultado);
+                }
+            }
+        }
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+        // Manejar errores y devolver mensajes de error si es necesario
+    }
+    
+    Map<String, Object> resultadoMap = new HashMap<>();
+    resultadoMap.put("resultados", resultados);
+    resultadoMap.put("totalPeriodo", totalPeriodo);
+    return resultadoMap;
+}
+    
+    
+public class ResultadoVentaRango {
+    private int idVenta;
+    private int idVendedor;
+    private String fechaVenta;
+    private String nombreVendedor;
+    private double totalVenta;
+    private double subtotalVenta;
+
+    public ResultadoVentaRango(int idVenta, int idVendedor, String fechaVenta, String nombreVendedor, double totalVenta, double subtotalVenta) {
+        this.idVenta = idVenta;
+        this.idVendedor = idVendedor;
+        this.fechaVenta = fechaVenta;
+        this.nombreVendedor = nombreVendedor;
+        this.totalVenta = totalVenta;
+        this.subtotalVenta = subtotalVenta;
+    }
+
+    public int getIdVenta() {
+        return idVenta;
+    }
+
+    public int getIdVendedor() {
+        return idVendedor;
+    }
+
+    public String getNombreVendedor() {
+        return nombreVendedor;
+    }
+
+    public String getFechaVenta() {
+        return fechaVenta;
+    }
+
+    public double getTotalVenta() {
+        return totalVenta;
+    }
+
+    public double getSubtotalVenta() {
+        return subtotalVenta;
+    }
+}
+
+    
+
 }   
