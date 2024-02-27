@@ -26,7 +26,9 @@ import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 import punto_venta.Panels.inicioPanel;
+import punto_venta.Panels.usuariosPanel;
 import punto_venta.Panels.ventasPanel;
+
 
 
 /**
@@ -209,6 +211,11 @@ public class menuAdmin extends javax.swing.JFrame {
         bntUsuarios.setBorderPainted(false);
         bntUsuarios.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         bntUsuarios.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        bntUsuarios.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bntUsuariosActionPerformed(evt);
+            }
+        });
 
         btnProductos.setBackground(new java.awt.Color(21, 101, 192));
         btnProductos.setFont(new java.awt.Font("Dialog", 1, 24)); // NOI18N
@@ -363,6 +370,11 @@ public class menuAdmin extends javax.swing.JFrame {
         ShowJPanel(new ventasPanel());
         
     }//GEN-LAST:event_btnVentasActionPerformed
+
+    private void bntUsuariosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bntUsuariosActionPerformed
+        ShowJPanel(new usuariosPanel());
+        
+    }//GEN-LAST:event_bntUsuariosActionPerformed
 
     /**
      * @param args the command line arguments

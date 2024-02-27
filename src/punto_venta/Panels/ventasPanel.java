@@ -312,13 +312,13 @@ public class ventasPanel extends javax.swing.JPanel {
                             .addComponent(btnAnio, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(btnDia, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(4, 4, 4))
-                    .addComponent(jScrollPane1)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, bgLayout.createSequentialGroup()
                         .addComponent(jLabelTotalDia, javax.swing.GroupLayout.DEFAULT_SIZE, 142, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabelTotalMes, javax.swing.GroupLayout.DEFAULT_SIZE, 148, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabelTotalAnio, javax.swing.GroupLayout.DEFAULT_SIZE, 163, Short.MAX_VALUE)))
+                        .addComponent(jLabelTotalAnio, javax.swing.GroupLayout.DEFAULT_SIZE, 163, Short.MAX_VALUE))
+                    .addComponent(jScrollPane1))
                 .addGap(279, 279, 279))
         );
         bgLayout.setVerticalGroup(
@@ -391,8 +391,8 @@ public class ventasPanel extends javax.swing.JPanel {
                 List<ResultadoVentaDia> resultados = (List<ResultadoVentaDia>) resultadoMap.get("resultados");
                 double totalDia = (double) resultadoMap.get("totalDia");
                 // Obtener el modelo de la tabla
-                 DecimalFormat df = new DecimalFormat("#,###.##");
-                 String totalDiaFormateado = df.format(totalDia);
+                DecimalFormat df = new DecimalFormat("#,###.##");
+                String totalDiaFormateado = df.format(totalDia);
                 DefaultTableModel model = (DefaultTableModel) tablaVentas.getModel();
 
                 // Limpiar el modelo actual

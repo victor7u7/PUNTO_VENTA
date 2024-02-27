@@ -162,6 +162,10 @@ public class constructor {
             return resultadoMap;
         }
 
+    
+
+    
+   
    
 
 
@@ -209,6 +213,7 @@ public class constructor {
    
    
 
+    
    //   *******    *******       **************      *********
    //   ********* ********       **************    *************       
    //   ***** *****  *****       *****             ****           
@@ -337,6 +342,10 @@ public class constructor {
 } 
    
    
+   
+   
+   
+   
 //                                     ******   
 //                                     ******
 //             ******           *******      *****     **********
@@ -451,16 +460,17 @@ public class constructor {
     
     
     //      ************               ****            ****        *****       *************          **********
-    //      ************              ******           *****       *****       *************        *************
-    //      ****     ***             ********          ******      *****       ****                ****        ****
-    //      ****     ***            ****  ****         *******     *****       ****              ****           ****
-    //      *************          ****    ****        **** ***    *****       ****   *********  ****           ****
-    //      **************        **************       ****  ***   *****       ****   *********  ****           ****
+    //      ************              ******           *****       *****       *************        **************
+    //      ****     ***             ********          ******      *****       ****                ****         ****
+    //      ****     ***            ****  ****         *******     *****       ****              ****            ****
+    //      *************          ****    ****        **** ***    *****       ****   *********  ****            ****
+    //      **************        **************       ****  ***   *****       ****   *********  ****            ****
     //      *****      ****      ****************      ****   ***  *****       ****        ****   ****          ****
     //      *****       ****    ****          ****     ****    *********       ****************     ************** 
     //      *****       ****   ****            ****    ****     ********       ****************      ***********
     
      
+    
     
     public Map<String, Object> buscarPorRangoFechas(Date fechaInicio, Date fechaFin) {
         List<ResultadoVentaRango> resultados = new ArrayList<>();
@@ -551,6 +561,260 @@ public class ResultadoVentaRango {
     }
 }
 
+
+
+
+
+
+
+//	****      ****    ****   *******     ***********     **********
+//	****      ****    ****  *********    ***********     ***********
+//   **********   ****    ****  ****         ****            ****     ***
+//   **********   ****    ****    ******     ********        ************
+//      ****      ****    ****        ***    ********        ************
+//      ****      ****    ****         ***   ****            ****     ****
+//                 **********    ********    ***********     ****      ****
+//                  ********     ******      ***********     ****      ****
+
+
+
+
+
+
+
+    public void agregaVendedor(String nombres, String apellidoPaterno, String apellidoMaterno, String correo, String telefonoSinFormato, String contrasenia, String tipoUser) {
+      
+        // Consulta SQL para insertar un nuevo usuario en la tabla Vendedores
+        String sql = "INSERT INTO Vendedores (Nombres, ApellidoPaterno, ApellidoMaterno, Correo, Telefono, Contrasena, TipoUsuario) " +
+                     "VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+        try (Connection connection = conDB.conectar();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            // Configurar los parámetros de la consulta
+            preparedStatement.setString(1, nombres);
+            preparedStatement.setString(2, apellidoPaterno);
+            preparedStatement.setString(3, apellidoMaterno);
+            preparedStatement.setString(4, correo);
+            preparedStatement.setString(5, telefonoSinFormato);
+            preparedStatement.setString(6, contrasenia);
+            preparedStatement.setString(7, tipoUser);
+
+            // Ejecutar la consulta para insertar el nuevo usuario
+            int filasAfectadas = preparedStatement.executeUpdate();
+
+            if (filasAfectadas > 0) {
+                System.out.println("Usuario agregado correctamente.");
+                JOptionPane.showMessageDialog(null, "Usuario agregado correctamente");
+            } else {
+                System.out.println("No se pudo agregar el usuario.");
+                JOptionPane.showMessageDialog(null, "¡¡¡NO SE PUDO AGREGAR EL USUARIO!!!");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Manejar errores y devolver mensajes de error si es necesario
+        }
+      
+    }
     
 
+  
+        public void editaInfoDeVendedor(String idUsuario, String nombres, String apellidoPaterno, String apellidoMaterno, String correo, String telefonoSinFormato, String contrasenia, String tipoUser) {
+           // Consulta SQL para actualizar un usuario en la tabla Vendedores
+        String sql = "UPDATE Vendedores SET Nombres=?, ApellidoPaterno=?, ApellidoMaterno=?, Correo=?, Telefono=?, Contrasena=?, TipoUsuario=? WHERE ID=?";
+
+        try (Connection connection = conDB.conectar();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            // Configurar los parámetros de la consulta
+            preparedStatement.setString(1, nombres);
+            preparedStatement.setString(2, apellidoPaterno);
+            preparedStatement.setString(3, apellidoMaterno);
+            preparedStatement.setString(4, correo);
+            preparedStatement.setString(5, telefonoSinFormato);
+            preparedStatement.setString(6, contrasenia);
+            preparedStatement.setString(7, tipoUser);
+            preparedStatement.setString(8, idUsuario);
+
+            // Ejecutar la consulta para insertar el nuevo usuario
+            int filasAfectadas = preparedStatement.executeUpdate();
+
+            if (filasAfectadas > 0) {
+                System.out.println("Usuario actualizado correctamente.");
+                JOptionPane.showMessageDialog(null, "Usuario actualizado correctamente");
+            } else {
+                System.out.println("No se pudo actualizar el usuario.");
+                JOptionPane.showMessageDialog(null, "¡¡¡NO SE PUDO ACTUALIZAR EL USUARIO!!!");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Manejar errores y devolver mensajes de error si es necesario
+        }
+        }
+
+    
+ public void eliminarVendedor(String idUsuario, String nuevoTipoUsuario) {
+    // Consulta SQL para verificar si el vendedor tiene ventas asociadas
+    String sqlVentas = "SELECT COUNT(*) FROM Ventas WHERE IDVendedor=?";
+    boolean tieneVentas = false;
+    
+    try (Connection connection = conDB.conectar();
+         PreparedStatement preparedStatement = connection.prepareStatement(sqlVentas)) {
+        preparedStatement.setString(1, idUsuario);
+        
+        ResultSet resultSet = preparedStatement.executeQuery();
+        
+        if (resultSet.next()) {
+            int count = resultSet.getInt(1);
+            tieneVentas = (count > 0);
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+        // Manejar errores y devolver mensajes de error si es necesario
+    }
+    
+    // Si el vendedor tiene ventas, cambia su estado al nuevo tipo de usuario; de lo contrario, elimínalo
+    if (tieneVentas) {
+        // Cambiar el tipo de usuario
+        String sql = "UPDATE Vendedores SET TipoUsuario=? WHERE ID=?";
+    
+        try (Connection connection = conDB.conectar();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            // Configurar los parámetros de la consulta
+            preparedStatement.setString(1, nuevoTipoUsuario);
+            preparedStatement.setString(2, idUsuario);
+    
+            // Ejecutar la consulta para actualizar el tipo de usuario
+            int filasAfectadas = preparedStatement.executeUpdate();
+    
+            if (filasAfectadas > 0) {
+                System.out.println("Tipo de usuario cambiado a " + nuevoTipoUsuario + " correctamente.");
+                JOptionPane.showMessageDialog(null, "ESTE USUARIO SE CAMBIO A " + nuevoTipoUsuario + " PORQUE TIENE VENTAS REALIZADAS");
+            } else {
+                System.out.println("No se pudo cambiar el tipo de usuario.");
+                JOptionPane.showMessageDialog(null, "¡¡¡NO SE PUDO CAMBIAR EL TIPO DE USUARIO A " + nuevoTipoUsuario.toUpperCase() + "!!!");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Manejar errores y devolver mensajes de error si es necesario
+        }
+    } else {
+        // Si no tiene ventas asociadas, se elimina el vendedor
+        String sqlEliminar = "DELETE FROM Vendedores WHERE ID=?";
+    
+        try (Connection connection = conDB.conectar();
+             PreparedStatement preparedStatement = connection.prepareStatement(sqlEliminar)) {
+    
+            preparedStatement.setString(1, idUsuario);
+    
+            int filasAfectadas = preparedStatement.executeUpdate();
+    
+            if (filasAfectadas > 0) {
+                System.out.println("Usuario eliminado correctamente.");
+                JOptionPane.showMessageDialog(null, "Usuario eliminado correctamente");
+            } else {
+                System.out.println("No se pudo eliminar el usuario.");
+                JOptionPane.showMessageDialog(null, "¡¡¡NO SE PUDO ELIMINAR EL USUARIO!!!");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Manejar errores y devolver mensajes de error si es necesario
+        }
+    }
+    }
+ 
+ 
+ 
+ 
+ 
+ public Map<String, Object> verTodosLosVendedores(){
+      List<ResultadoVendedor> resultados = new ArrayList<>();
+        double totalVendedores = 0;
+
+        try (Connection connection = conDB.conectar()) {
+            String consultaSQL = "SELECT ID, Nombres, ApellidoPaterno, ApellidoMaterno, Correo, Telefono, TipoUsuario, Contrasena " +
+                                "FROM Vendedores";
+            try (PreparedStatement preparedStatement = connection.prepareStatement(consultaSQL)) {
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    while (resultSet.next()) {
+                        int id = resultSet.getInt("ID");
+                        String nombres = resultSet.getString("Nombres");
+                        String apellidoPaterno = resultSet.getString("ApellidoPaterno");
+                        String apellidoMaterno = resultSet.getString("ApellidoMaterno");
+                        String correo = resultSet.getString("Correo");
+                        String telefono = resultSet.getString("Telefono");
+                        String tipoUsuario = resultSet.getString("TipoUsuario");
+                        String contrasena = resultSet.getString("Contrasena");
+
+                        ResultadoVendedor resultado = new ResultadoVendedor(id, nombres, apellidoPaterno, apellidoMaterno, correo, telefono, tipoUsuario, contrasena);
+                        resultados.add(resultado);
+                        totalVendedores++;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Manejar errores y devolver mensajes de error si es necesario
+        }
+
+        Map<String, Object> resultadoMap = new HashMap<>();
+        resultadoMap.put("resultados", resultados);
+        resultadoMap.put("totalVendedores", totalVendedores);
+        return resultadoMap;
+    }
+
+    public class ResultadoVendedor {
+        private int id;
+        private String nombres;
+        private String apellidoPaterno;
+        private String apellidoMaterno;
+        private String correo;
+        private String telefono;
+        private String tipoUsuario;
+        private String contrasena;
+
+        public ResultadoVendedor(int id, String nombres, String apellidoPaterno, String apellidoMaterno, String correo, String telefono, String tipoUsuario, String contrasena) {
+            this.id = id;
+            this.nombres = nombres;
+            this.apellidoPaterno = apellidoPaterno;
+            this.apellidoMaterno = apellidoMaterno;
+            this.correo = correo;
+            this.telefono = telefono;
+            this.tipoUsuario = tipoUsuario;
+            this.contrasena = contrasena;
+        }
+
+        // Métodos getters
+
+        public int getId() {
+            return id;
+        }
+
+        public String getNombres() {
+            return nombres;
+        }
+
+        public String getApellidoPaterno() {
+            return apellidoPaterno;
+        }
+
+        public String getApellidoMaterno() {
+            return apellidoMaterno;
+        }
+
+        public String getCorreo() {
+            return correo;
+        }
+
+        public String getTelefono() {
+            return telefono;
+        }
+
+        public String getTipoUsuario() {
+            return tipoUsuario;
+        }
+
+        public String getContrasena() {
+            return contrasena;
+        }
+    }
+ 
 }   
